@@ -5,4 +5,6 @@
     <string name="string_error_hint">Sorry:( But we can\'t found your location.  Try to pick city, please!</string>
     <string name="person_location">Person location</string>
     <string name="person_city">Person city</string>
+    <string name="location_city_hint">Your location was detected by city</string>
+    <string name="location_gps_hint">Your location was detected by GPS</string>
 </resources>

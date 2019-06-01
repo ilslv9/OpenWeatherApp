@@ -6,4 +6,6 @@ public interface WeatherView {
     void showError(String errorMessage);
 
     void showWeatherInfo(InfoDto info);
+
+    void showLoading(Boolean isLoading);
 }

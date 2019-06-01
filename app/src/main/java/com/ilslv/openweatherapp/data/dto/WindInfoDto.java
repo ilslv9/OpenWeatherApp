@@ -1,30 +1,17 @@
 package com.ilslv.openweatherapp.data.dto;
 
-import com.google.gson.annotations.SerializedName;
-
 public class WindInfoDto {
-    private int speed;
-    @SerializedName("deg")
-    private int degree;
+    private double speed;
 
-    public WindInfoDto(int speed, int degree) {
+    public WindInfoDto(double speed, int degree) {
         this.speed = speed;
-        this.degree = degree;
     }
 
-    public int getSpeed() {
+    public double getSpeed() {
         return speed;
     }
 
-    public void setSpeed(int speed) {
+    public void setSpeed(double speed) {
         this.speed = speed;
-    }
-
-    public int getDegree() {
-        return degree;
-    }
-
-    public void setDegree(int degree) {
-        this.degree = degree;
     }
 }
