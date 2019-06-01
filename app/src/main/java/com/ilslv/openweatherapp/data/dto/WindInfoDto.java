@@ -1,4 +1,4 @@
-package com.ilslv.openweatherapp.data;
+package com.ilslv.openweatherapp.data.dto;
 
 import com.google.gson.annotations.SerializedName;
 

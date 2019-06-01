@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">OpenWeatherApp</string>
+    <string name="string_city">City</string>
+    <string name="string_city_name_hint">City name must be written in English lanuguage</string>
+    <string name="string_error_hint">Sorry:( But we can\'t found your location.  Try to pick city, please!</string>
+    <string name="person_location">Person location</string>
+    <string name="person_city">Person city</string>
 </resources>
