@@ -30,7 +30,9 @@ import com.ilslv.openweatherapp.domain.WeatherInteractor;
 import com.ilslv.openweatherapp.presentation.mvp.presenter.WeatherPresenter;
 import com.ilslv.openweatherapp.presentation.mvp.view.WeatherView;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements WeatherView {
 
@@ -45,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements WeatherView {
     private TextView cloudPercent;
     private TextView windSpeed;
     private TextView pressure;
+    private TextView date;
     private TextView locationHint;
     private ProgressBar progressBar;
 
@@ -127,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements WeatherView {
     public void showWeatherInfo(InfoDto info) {
         errorHint.setVisibility(View.GONE);
         weatherInfoGroup.setVisibility(View.VISIBLE);
-        getSupportActionBar().setTitle(String.format("%s, %s, %s", info.getCity(), info.getOtherInfo().getCountry(), new Date(info.getDate())));
+        getSupportActionBar().setTitle(String.format("%s, %s", info.getCity(), info.getOtherInfo().getCountry()));
         currentTemp.setText(String.format("%s\u02daC", String.valueOf(info.getWeather().getTemperature())));
         weatherType.setText(info.getWeatherInfo()[0].getTitle());
         weatherDescription.setText(info.getWeatherInfo()[0].getDescription());
@@ -135,6 +138,9 @@ public class MainActivity extends AppCompatActivity implements WeatherView {
         cloudPercent.setText(String.format("%s%%", String.valueOf(info.getClouds().getPercent())));
         windSpeed.setText(String.format("%s m/s", String.valueOf(info.getWindInfo().getSpeed())));
         pressure.setText(String.format("%s pha", String.valueOf(info.getWeather().getPressure())));
+        Date weatherDate = new Date(info.getDate() * 1000);
+        SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.ENGLISH);
+        date.setText(format.format(weatherDate));
     }
 
     @Override
@@ -167,6 +173,7 @@ public class MainActivity extends AppCompatActivity implements WeatherView {
         pressure = findViewById(R.id.pressure_value);
         locationHint = findViewById(R.id.location_params_hint);
         progressBar = findViewById(R.id.progress_bar);
+        date = findViewById(R.id.date_value);
     }
 
     /**
@@ -222,7 +229,7 @@ public class MainActivity extends AppCompatActivity implements WeatherView {
                             Toast.makeText(getApplicationContext(), "City name must not be empty", Toast.LENGTH_SHORT).show();
                         } else {
                             locationHint.setText(getString(R.string.location_city_hint));
-                            presenter.onCityPicked(cityPickerEdt.getText().toString());
+                            presenter.onCityPicked(cityPickerEdt.getText().toString().trim());
                         }
                     }
                 })
