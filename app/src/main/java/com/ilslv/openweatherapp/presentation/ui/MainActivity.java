@@ -13,17 +13,20 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.ilslv.openweatherapp.R;
+import com.ilslv.openweatherapp.data.dto.InfoDto;
+import com.ilslv.openweatherapp.presentation.mvp.view.WeatherView;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements WeatherView {
 
     private Group errorHint;
+    private Group weatherInfoGroup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initViews();
-        errorHint.setVisibility(View.GONE);
+//        errorHint.setVisibility(View.GONE);
     }
 
     @Override
@@ -44,6 +47,21 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public void showError(String errorMessage) {
+
+    }
+
+    @Override
+    public void showWeatherInfo(InfoDto info) {
+        weatherInfoGroup.post(new Runnable() {
+            @Override
+            public void run() {
+
+            }
+        });
     }
 
     private void initViews() {
