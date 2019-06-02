@@ -10,12 +10,19 @@ import com.ilslv.openweatherapp.data.dto.CachedWeatherDto;
 
 public class CachedWeatherDao {
 
+    /**
+     * database connection
+     */
     private SQLiteDatabase database;
 
     public CachedWeatherDao(DatabaseHelper helper) {
         database = helper.getWritableDatabase();
     }
 
+    /**
+     * Load weather info from cache
+     * @return weather info
+     */
     public CachedWeatherDto getCashedWeatherIfExists() {
         CachedWeatherDto dto = new CachedWeatherDto();
         int rows = (int) DatabaseUtils.queryNumEntries(database, "cashed_weather");
@@ -38,6 +45,7 @@ public class CachedWeatherDao {
                 dto.setCountry(cursor.getString(cursor.getColumnIndexOrThrow("country")));
                 dto.setSpeed(cursor.getDouble(cursor.getColumnIndexOrThrow("speed")));
                 dto.setPercent(cursor.getDouble(cursor.getColumnIndexOrThrow("percent")));
+                cursor.close();
                 return dto;
             } else {
                 return null;
@@ -45,6 +53,10 @@ public class CachedWeatherDao {
         }
     }
 
+    /**
+     * Save last loaded weather info
+     * @param dto weather info
+     */
     public void saveWeather(CachedWeatherDto dto) {
         database.execSQL("DELETE FROM cashed_weather");
         ContentValues values = new ContentValues();
@@ -61,5 +73,12 @@ public class CachedWeatherDao {
         values.put("speed", dto.getSpeed());
         values.put("percent", dto.getPercent());
         long rowId = database.insert("cashed_weather", null, values);
+    }
+
+    /**
+     * close database connection
+     */
+    public void closeDatabase() {
+        database.close();
     }
 }

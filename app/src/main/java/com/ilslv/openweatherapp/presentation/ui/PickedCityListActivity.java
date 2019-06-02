@@ -101,6 +101,9 @@ public class PickedCityListActivity extends AppCompatActivity implements PickedC
         }
     }
 
+    /**
+     * Init views from activity_recently_picked_cities
+     */
     private void initViews() {
         citiesList = findViewById(R.id.cities_list);
         emptyMessage = findViewById(R.id.empty_hint);
@@ -108,6 +111,9 @@ public class PickedCityListActivity extends AppCompatActivity implements PickedC
         toolbar = findViewById(R.id.toolbar);
     }
 
+    /**
+     * Init activity toolbar
+     */
     private void initToolbar() {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(R.string.city_picker_title);
@@ -116,6 +122,9 @@ public class PickedCityListActivity extends AppCompatActivity implements PickedC
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back);
     }
 
+    /**
+     * Init cities recycler view
+     */
     private void initRecyclerView() {
         adapter = new PickedCitiesListAdapter(this);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -125,6 +134,11 @@ public class PickedCityListActivity extends AppCompatActivity implements PickedC
         citiesList.setAdapter(adapter);
     }
 
+    /**
+     * Send picked result
+     *
+     * @param city for result
+     */
     private void finishWithResult(String city) {
         Intent data = new Intent();
         data.putExtra(BUNDLE_CITY_NAME, city);

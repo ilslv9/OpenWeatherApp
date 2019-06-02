@@ -119,6 +119,8 @@ public class WeatherPresenter {
      * Avoid memory leak
      */
     public void detachView() {
+        dao.closeDatabase();
+        weatherDao.closeDatabase();
         view = null;
     }
 

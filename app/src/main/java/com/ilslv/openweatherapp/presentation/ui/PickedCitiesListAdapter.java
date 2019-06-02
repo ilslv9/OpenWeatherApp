@@ -16,7 +16,7 @@ public class PickedCitiesListAdapter extends RecyclerView.Adapter<PickedCitiesLi
     private List<String> cities;
     private OnCityClickListener listener;
 
-    public PickedCitiesListAdapter(OnCityClickListener listener) {
+    PickedCitiesListAdapter(OnCityClickListener listener) {
         this.listener = listener;
     }
 
@@ -46,11 +46,18 @@ public class PickedCitiesListAdapter extends RecyclerView.Adapter<PickedCitiesLi
         return cities.size();
     }
 
-    public void setCities(List<String> cities) {
+    /**
+     * Set cities list to recycler view
+     * @param cities cities list
+     */
+    void setCities(List<String> cities) {
         this.cities = cities;
         notifyDataSetChanged();
     }
 
+    /**
+     * City click callback
+     */
     interface OnCityClickListener {
         void onCityPicked(String city);
     }
@@ -59,7 +66,7 @@ public class PickedCitiesListAdapter extends RecyclerView.Adapter<PickedCitiesLi
 
         TextView cityName;
 
-        public ViewHolder(@NonNull View itemView) {
+        ViewHolder(@NonNull View itemView) {
             super(itemView);
             cityName = itemView.findViewById(R.id.city_name);
         }

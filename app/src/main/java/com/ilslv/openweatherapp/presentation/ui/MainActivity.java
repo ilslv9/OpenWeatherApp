@@ -157,7 +157,7 @@ public class MainActivity extends AppCompatActivity implements WeatherView, Loca
     @Override
     public void showWeatherInfo(CachedWeatherDto info, boolean isFromCached) {
         if (isFromCached) {
-            Toast.makeText(this, "You not connect to internet. We loaded last weather info", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.error_hint), Toast.LENGTH_SHORT).show();
         }
         errorHint.setVisibility(View.GONE);
         weatherInfoGroup.setVisibility(View.VISIBLE);
