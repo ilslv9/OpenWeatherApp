@@ -70,6 +70,8 @@ public class MainActivity extends AppCompatActivity implements WeatherView, Loca
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initViews();
+        weatherInfoGroup.setVisibility(View.GONE);
+        errorHint.setVisibility(View.GONE);
         setSupportActionBar(toolbar);
         DatabaseHelper databaseHelper = new DatabaseHelper(this);
         presenter = new WeatherPresenter(new WeatherInteractor(new WeatherRepositoryImpl()),
