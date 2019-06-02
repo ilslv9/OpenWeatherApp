@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.location.Location;
 import android.os.AsyncTask;
 
+import com.ilslv.openweatherapp.data.PickedCitiesDao;
 import com.ilslv.openweatherapp.data.dto.InfoDto;
 import com.ilslv.openweatherapp.domain.WeatherInteractor;
 import com.ilslv.openweatherapp.presentation.mvp.view.WeatherView;
@@ -19,8 +20,14 @@ public class WeatherPresenter {
      */
     private WeatherView view;
 
-    public WeatherPresenter(WeatherInteractor weatherInteractor) {
+    /**
+     * Dao for saving picked cities
+     */
+    private PickedCitiesDao dao;
+
+    public WeatherPresenter(WeatherInteractor weatherInteractor, PickedCitiesDao dao) {
         this.weatherInteractor = weatherInteractor;
+        this.dao = dao;
     }
 
     /**
@@ -38,8 +45,11 @@ public class WeatherPresenter {
      * @param cityName city name of user picked city
      */
     @SuppressLint("StaticFieldLeak")
-    public void onCityPicked(final String cityName) {
+    public void onCityPicked(final String cityName, final boolean isCityShouldBeSaved) {
         view.showLoading(true);
+        if (isCityShouldBeSaved) {
+            dao.insertNewCity(cityName);
+        }
         new AsyncTask<Void, Void, InfoDto>() {
             @Override
             protected InfoDto doInBackground(Void... nothing) {

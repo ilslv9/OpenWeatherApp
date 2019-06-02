@@ -1,14 +1,17 @@
 package com.ilslv.openweatherapp.presentation.ui;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.constraint.Group;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.ActivityCompat;
@@ -24,6 +27,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ilslv.openweatherapp.R;
+import com.ilslv.openweatherapp.data.PickedCitiesDao;
 import com.ilslv.openweatherapp.data.dto.InfoDto;
 import com.ilslv.openweatherapp.data.repository.WeatherRepositoryImpl;
 import com.ilslv.openweatherapp.domain.WeatherInteractor;
@@ -34,7 +38,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity implements WeatherView {
+public class MainActivity extends AppCompatActivity implements WeatherView, LocationListener {
 
     private Group errorHint;
     private TextView errorText;
@@ -55,6 +59,9 @@ public class MainActivity extends AppCompatActivity implements WeatherView {
     private LocationManager locationManager;
 
     private static final int MY_PERMISSIONS_REQUEST_LOCATION = 501;
+    private static final int ACTIVITY_CITY_PICKER_RESULT_CODE = 401;
+
+    private boolean isFromResult = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements WeatherView {
         setContentView(R.layout.activity_main);
         initViews();
         setSupportActionBar(toolbar);
-        presenter = new WeatherPresenter(new WeatherInteractor(new WeatherRepositoryImpl()));
+        presenter = new WeatherPresenter(new WeatherInteractor(new WeatherRepositoryImpl()), new PickedCitiesDao(this));
     }
 
     @Override
@@ -75,6 +82,12 @@ public class MainActivity extends AppCompatActivity implements WeatherView {
     @Override
     protected void onStop() {
         super.onStop();
+        locationManager.removeUpdates(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
         presenter.detachView();
     }
 
@@ -99,6 +112,9 @@ public class MainActivity extends AppCompatActivity implements WeatherView {
             case R.id.person_city:
                 showCityPickerDialog();
                 return true;
+            case R.id.city_list:
+                startActivityForResult(PickedCityListActivity.createIntent(getApplicationContext()), ACTIVITY_CITY_PICKER_RESULT_CODE);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -115,6 +131,18 @@ public class MainActivity extends AppCompatActivity implements WeatherView {
                     showCityPickerDialog();
                 }
             }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (resultCode == Activity.RESULT_OK && requestCode == ACTIVITY_CITY_PICKER_RESULT_CODE) {
+            isFromResult = true;
+            locationHint.setText(getString(R.string.location_city_hint));
+            String city = data.getStringExtra(PickedCityListActivity.BUNDLE_CITY_NAME);
+            presenter.onCityPicked(city, false);
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
         }
     }
 
@@ -156,6 +184,27 @@ public class MainActivity extends AppCompatActivity implements WeatherView {
         }
     }
 
+    @Override
+    public void onLocationChanged(Location location) {
+        locationHint.setText(getString(R.string.location_gps_hint));
+        presenter.initWeather(location);
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+        /*nothing*/
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+        /*nothing*/
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+        /*nothing*/
+    }
+
     /**
      * Init views from activity_main
      */
@@ -187,30 +236,11 @@ public class MainActivity extends AppCompatActivity implements WeatherView {
                     MY_PERMISSIONS_REQUEST_LOCATION);
             return;
         }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100000, 100, new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                locationHint.setText(getString(R.string.location_gps_hint));
-                presenter.initWeather(location);
-            }
-
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-                /*nothing*/
-            }
-
-            @Override
-            public void onProviderEnabled(String provider) {
-                /*nothing*/
-            }
-
-            @Override
-            public void onProviderDisabled(String provider) {
-                /*nothing*/
-            }
-        });
-        locationHint.setText(getString(R.string.location_gps_hint));
-        presenter.initWeather(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER));
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100000, 100, this);
+        if (!isFromResult) {
+            locationHint.setText(getString(R.string.location_gps_hint));
+            presenter.initWeather(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER));
+        }
     }
 
     /**
@@ -229,7 +259,7 @@ public class MainActivity extends AppCompatActivity implements WeatherView {
                             Toast.makeText(getApplicationContext(), "City name must not be empty", Toast.LENGTH_SHORT).show();
                         } else {
                             locationHint.setText(getString(R.string.location_city_hint));
-                            presenter.onCityPicked(cityPickerEdt.getText().toString().trim());
+                            presenter.onCityPicked(cityPickerEdt.getText().toString().trim(), true);
                         }
                     }
                 })
