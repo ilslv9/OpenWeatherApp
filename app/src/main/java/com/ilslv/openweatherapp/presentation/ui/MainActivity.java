@@ -27,8 +27,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ilslv.openweatherapp.R;
-import com.ilslv.openweatherapp.data.PickedCitiesDao;
-import com.ilslv.openweatherapp.data.dto.InfoDto;
+import com.ilslv.openweatherapp.data.database.DatabaseHelper;
+import com.ilslv.openweatherapp.data.database.dao.CachedWeatherDao;
+import com.ilslv.openweatherapp.data.database.dao.PickedCitiesDao;
+import com.ilslv.openweatherapp.data.dto.CachedWeatherDto;
 import com.ilslv.openweatherapp.data.repository.WeatherRepositoryImpl;
 import com.ilslv.openweatherapp.domain.WeatherInteractor;
 import com.ilslv.openweatherapp.presentation.mvp.presenter.WeatherPresenter;
@@ -69,12 +71,10 @@ public class MainActivity extends AppCompatActivity implements WeatherView, Loca
         setContentView(R.layout.activity_main);
         initViews();
         setSupportActionBar(toolbar);
-        presenter = new WeatherPresenter(new WeatherInteractor(new WeatherRepositoryImpl()), new PickedCitiesDao(this));
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
+        DatabaseHelper databaseHelper = new DatabaseHelper(this);
+        presenter = new WeatherPresenter(new WeatherInteractor(new WeatherRepositoryImpl()),
+                new PickedCitiesDao(databaseHelper),
+                new CachedWeatherDao(databaseHelper));
         presenter.attachView(this);
         initLocationManager();
     }
@@ -155,17 +155,20 @@ public class MainActivity extends AppCompatActivity implements WeatherView, Loca
     }
 
     @Override
-    public void showWeatherInfo(InfoDto info) {
+    public void showWeatherInfo(CachedWeatherDto info, boolean isFromCached) {
+        if (isFromCached) {
+            Toast.makeText(this, "You not connect to internet. We loaded last weather info", Toast.LENGTH_SHORT).show();
+        }
         errorHint.setVisibility(View.GONE);
         weatherInfoGroup.setVisibility(View.VISIBLE);
-        getSupportActionBar().setTitle(String.format("%s, %s", info.getCity(), info.getOtherInfo().getCountry()));
-        currentTemp.setText(String.format("%s\u02daC", String.valueOf(info.getWeather().getTemperature())));
-        weatherType.setText(info.getWeatherInfo()[0].getTitle());
-        weatherDescription.setText(info.getWeatherInfo()[0].getDescription());
-        tempFromTo.setText(String.format("from %s to %s", info.getWeather().getMinTemp(), info.getWeather().getMaxTemp()));
-        cloudPercent.setText(String.format("%s%%", String.valueOf(info.getClouds().getPercent())));
-        windSpeed.setText(String.format("%s m/s", String.valueOf(info.getWindInfo().getSpeed())));
-        pressure.setText(String.format("%s pha", String.valueOf(info.getWeather().getPressure())));
+        getSupportActionBar().setTitle(String.format("%s, %s", info.getCity(), info.getCountry()));
+        currentTemp.setText(String.format("%s\u02daC", String.valueOf(info.getTemperature())));
+        weatherType.setText(info.getTitle());
+        weatherDescription.setText(info.getDescription());
+        tempFromTo.setText(String.format("from %s to %s", info.getMinTemp(), info.getMaxTemp()));
+        cloudPercent.setText(String.format("%s%%", String.valueOf(info.getPercent())));
+        windSpeed.setText(String.format("%s m/s", String.valueOf(info.getSpeed())));
+        pressure.setText(String.format("%s pha", String.valueOf(info.getPressure())));
         Date weatherDate = new Date(info.getDate() * 1000);
         SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.ENGLISH);
         date.setText(format.format(weatherDate));

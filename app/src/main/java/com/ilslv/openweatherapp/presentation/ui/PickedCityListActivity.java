@@ -10,15 +10,18 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ilslv.openweatherapp.R;
-import com.ilslv.openweatherapp.data.PickedCitiesDao;
+import com.ilslv.openweatherapp.data.database.DatabaseHelper;
+import com.ilslv.openweatherapp.data.database.dao.PickedCitiesDao;
 import com.ilslv.openweatherapp.presentation.mvp.presenter.PickedCityPresenter;
 import com.ilslv.openweatherapp.presentation.mvp.view.PickedCityView;
 
@@ -45,8 +48,9 @@ public class PickedCityListActivity extends AppCompatActivity implements PickedC
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recently_picked_cities);
         initViews();
+        initToolbar();
         initRecyclerView();
-        presenter = new PickedCityPresenter(new PickedCitiesDao(this));
+        presenter = new PickedCityPresenter(new PickedCitiesDao(new DatabaseHelper(this)));
         addCity.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -86,16 +90,37 @@ public class PickedCityListActivity extends AppCompatActivity implements PickedC
         finishWithResult(city);
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
     private void initViews() {
         citiesList = findViewById(R.id.cities_list);
         emptyMessage = findViewById(R.id.empty_hint);
         addCity = findViewById(R.id.add_new_city);
         toolbar = findViewById(R.id.toolbar);
+    }
+
+    private void initToolbar() {
         setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(R.string.city_picker_title);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_arrow_back);
     }
 
     private void initRecyclerView() {
         adapter = new PickedCitiesListAdapter(this);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        DividerItemDecoration decoration = new DividerItemDecoration(this, layoutManager.getOrientation());
+        citiesList.addItemDecoration(decoration);
         citiesList.setLayoutManager(new LinearLayoutManager(this));
         citiesList.setAdapter(adapter);
     }

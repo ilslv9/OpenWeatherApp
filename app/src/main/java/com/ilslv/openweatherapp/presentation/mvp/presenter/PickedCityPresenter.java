@@ -1,6 +1,6 @@
 package com.ilslv.openweatherapp.presentation.mvp.presenter;
 
-import com.ilslv.openweatherapp.data.PickedCitiesDao;
+import com.ilslv.openweatherapp.data.database.dao.PickedCitiesDao;
 import com.ilslv.openweatherapp.presentation.mvp.view.PickedCityView;
 
 import java.util.List;

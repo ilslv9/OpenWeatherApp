@@ -2,7 +2,7 @@ package com.ilslv.openweatherapp.domain;
 
 import android.location.Location;
 
-import com.ilslv.openweatherapp.data.dto.InfoDto;
+import com.ilslv.openweatherapp.data.dto.CachedWeatherDto;
 import com.ilslv.openweatherapp.data.repository.WeatherRepository;
 
 public class WeatherInteractor {
@@ -18,19 +18,21 @@ public class WeatherInteractor {
 
     /**
      * Loading weather from server by city
+     *
      * @param cityName city name for query
      * @return Dto with weather info
      */
-    public InfoDto loadWeatherByCity(String cityName) {
+    public CachedWeatherDto loadWeatherByCity(String cityName) {
         return repository.getWeatherByCity(cityName);
     }
 
     /**
      * Loading weather from server by user location
+     *
      * @param location user location
      * @return Dto with weather info
      */
-    public InfoDto loadWeatherByLocation(Location location) {
+    public CachedWeatherDto loadWeatherByLocation(Location location) {
         return repository.getWeatherByLocation(location.getLatitude(), location.getLongitude());
     }
 

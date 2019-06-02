@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.ilslv.openweatherapp.data.Constants;
+import com.ilslv.openweatherapp.data.dto.CachedWeatherDto;
 import com.ilslv.openweatherapp.data.dto.InfoDto;
 
 import java.io.BufferedReader;
@@ -27,7 +28,7 @@ public class WeatherRepositoryImpl implements WeatherRepository {
      * @return Dto with weather info
      */
     @Override
-    public InfoDto getWeatherByCity(String cityName) {
+    public CachedWeatherDto getWeatherByCity(String cityName) {
         String urlParameters = buildQueryParamsByCity(cityName);
         HttpURLConnection connection = null;
         try {
@@ -53,7 +54,8 @@ public class WeatherRepositoryImpl implements WeatherRepository {
                 response.append('\r');
             }
             rd.close();
-            return parseResponse(response.toString());
+            InfoDto dtoResponse = parseResponse(response.toString());
+            return convertInfoDto(dtoResponse);
         } catch (Exception e) {
             Log.e(LOG_WEATHER_REMOTE_SOURCE, e.toString());
             return null;
@@ -72,7 +74,7 @@ public class WeatherRepositoryImpl implements WeatherRepository {
      * @return Dto with weather info
      */
     @Override
-    public InfoDto getWeatherByLocation(Double latitude, Double longitude) {
+    public CachedWeatherDto getWeatherByLocation(Double latitude, Double longitude) {
         String urlParameters = buildQueryParamsByLocation(latitude, longitude);
         HttpURLConnection connection = null;
         try {
@@ -98,7 +100,8 @@ public class WeatherRepositoryImpl implements WeatherRepository {
                 response.append('\r');
             }
             rd.close();
-            return parseResponse(response.toString());
+            InfoDto dtoResponse = parseResponse(response.toString());
+            return convertInfoDto(dtoResponse);
         } catch (Exception e) {
             Log.e(LOG_WEATHER_REMOTE_SOURCE, e.toString());
             return null;
@@ -139,5 +142,22 @@ public class WeatherRepositoryImpl implements WeatherRepository {
      */
     private InfoDto parseResponse(String response) {
         return new Gson().fromJson(response, InfoDto.class);
+    }
+
+    private CachedWeatherDto convertInfoDto(InfoDto dto) {
+        CachedWeatherDto cachedWeatherDto = new CachedWeatherDto();
+        cachedWeatherDto.setCity(dto.getCity());
+        cachedWeatherDto.setDate(dto.getDate());
+        cachedWeatherDto.setTemperature(dto.getWeather().getTemperature());
+        cachedWeatherDto.setPressure(dto.getWeather().getPressure());
+        cachedWeatherDto.setMaxTemp(dto.getWeather().getMaxTemp());
+        cachedWeatherDto.setMinTemp(dto.getWeather().getMinTemp());
+        cachedWeatherDto.setHumidity(dto.getWeather().getHumidity());
+        cachedWeatherDto.setTitle(dto.getWeatherInfo()[0].getTitle());
+        cachedWeatherDto.setDescription(dto.getWeatherInfo()[0].getDescription());
+        cachedWeatherDto.setCountry(dto.getOtherInfo().getCountry());
+        cachedWeatherDto.setSpeed(dto.getWindInfo().getSpeed());
+        cachedWeatherDto.setPercent(dto.getClouds().getPercent());
+        return cachedWeatherDto;
     }
 }

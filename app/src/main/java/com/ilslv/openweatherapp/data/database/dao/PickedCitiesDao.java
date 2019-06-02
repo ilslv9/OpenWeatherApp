@@ -1,9 +1,10 @@
-package com.ilslv.openweatherapp.data;
+package com.ilslv.openweatherapp.data.database.dao;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+
+import com.ilslv.openweatherapp.data.database.DatabaseHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,8 +13,8 @@ public class PickedCitiesDao {
 
     private SQLiteDatabase database;
 
-    public PickedCitiesDao(Context context) {
-        database = new DatabaseHelper(context).getWritableDatabase();
+    public PickedCitiesDao(DatabaseHelper helper) {
+        database = helper.getWritableDatabase();
     }
 
     public List<String> getPickedCities() {

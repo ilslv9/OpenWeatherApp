@@ -9,4 +9,5 @@
     <string name="location_gps_hint">Your location was detected by GPS</string>
     <string name="empty_hint">City list is empty</string>
     <string name="city_list">City list</string>
+    <string name="city_picker_title">Recently picked cities</string>
 </resources>

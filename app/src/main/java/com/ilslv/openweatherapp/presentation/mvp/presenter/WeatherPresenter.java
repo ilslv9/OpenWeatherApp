@@ -4,8 +4,9 @@ import android.annotation.SuppressLint;
 import android.location.Location;
 import android.os.AsyncTask;
 
-import com.ilslv.openweatherapp.data.PickedCitiesDao;
-import com.ilslv.openweatherapp.data.dto.InfoDto;
+import com.ilslv.openweatherapp.data.database.dao.CachedWeatherDao;
+import com.ilslv.openweatherapp.data.database.dao.PickedCitiesDao;
+import com.ilslv.openweatherapp.data.dto.CachedWeatherDto;
 import com.ilslv.openweatherapp.domain.WeatherInteractor;
 import com.ilslv.openweatherapp.presentation.mvp.view.WeatherView;
 
@@ -25,9 +26,15 @@ public class WeatherPresenter {
      */
     private PickedCitiesDao dao;
 
-    public WeatherPresenter(WeatherInteractor weatherInteractor, PickedCitiesDao dao) {
+    /**
+     * Dao for weather cash
+     */
+    private CachedWeatherDao weatherDao;
+
+    public WeatherPresenter(WeatherInteractor weatherInteractor, PickedCitiesDao dao, CachedWeatherDao weatherDao) {
         this.weatherInteractor = weatherInteractor;
         this.dao = dao;
+        this.weatherDao = weatherDao;
     }
 
     /**
@@ -50,20 +57,26 @@ public class WeatherPresenter {
         if (isCityShouldBeSaved) {
             dao.insertNewCity(cityName);
         }
-        new AsyncTask<Void, Void, InfoDto>() {
+        new AsyncTask<Void, Void, CachedWeatherDto>() {
             @Override
-            protected InfoDto doInBackground(Void... nothing) {
+            protected CachedWeatherDto doInBackground(Void... nothing) {
                 return weatherInteractor.loadWeatherByCity(cityName);
             }
 
             @Override
-            protected void onPostExecute(InfoDto info) {
+            protected void onPostExecute(CachedWeatherDto info) {
                 super.onPostExecute(info);
                 view.showLoading(false);
                 if (info != null) {
-                    view.showWeatherInfo(info);
+                    weatherDao.saveWeather(info);
+                    view.showWeatherInfo(info, false);
                 } else {
-                    view.showError("Can't loading weather :(");
+                    CachedWeatherDto cashedInfo = weatherDao.getCashedWeatherIfExists();
+                    if (cashedInfo != null) {
+                        view.showWeatherInfo(cashedInfo, true);
+                    } else {
+                        view.showError("Can't loading weather :(");
+                    }
                 }
             }
         }.execute();
@@ -77,20 +90,26 @@ public class WeatherPresenter {
     @SuppressLint("StaticFieldLeak")
     public void initWeather(final Location location) {
         view.showLoading(true);
-        new AsyncTask<Void, Void, InfoDto>() {
+        new AsyncTask<Void, Void, CachedWeatherDto>() {
             @Override
-            protected InfoDto doInBackground(Void... nothing) {
+            protected CachedWeatherDto doInBackground(Void... nothing) {
                 return weatherInteractor.loadWeatherByLocation(location);
             }
 
             @Override
-            protected void onPostExecute(InfoDto info) {
+            protected void onPostExecute(CachedWeatherDto info) {
                 super.onPostExecute(info);
                 view.showLoading(false);
                 if (info != null) {
-                    view.showWeatherInfo(info);
+                    weatherDao.saveWeather(info);
+                    view.showWeatherInfo(info, false);
                 } else {
-                    view.showError("Can't loading weather :(");
+                    CachedWeatherDto cashedInfo = weatherDao.getCashedWeatherIfExists();
+                    if (cashedInfo != null) {
+                        view.showWeatherInfo(cashedInfo, true);
+                    } else {
+                        view.showError("Can't loading weather :(");
+                    }
                 }
             }
         }.execute();

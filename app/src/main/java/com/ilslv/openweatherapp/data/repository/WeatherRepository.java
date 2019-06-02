@@ -1,10 +1,11 @@
 package com.ilslv.openweatherapp.data.repository;
 
-import com.ilslv.openweatherapp.data.dto.InfoDto;
+import com.ilslv.openweatherapp.data.dto.CachedWeatherDto;
 
 public interface WeatherRepository {
 
-    InfoDto getWeatherByCity(String cityName);
-    InfoDto getWeatherByLocation(Double latitude, Double longitude);
+    CachedWeatherDto getWeatherByCity(String cityName);
+
+    CachedWeatherDto getWeatherByLocation(Double latitude, Double longitude);
 
 }
